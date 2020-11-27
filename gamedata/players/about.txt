@@ -1,0 +1,1 @@
+# creates a file for each player, storing their record of games played, personal best, and average score

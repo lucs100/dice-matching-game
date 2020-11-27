@@ -1,0 +1,1 @@
+# persistent variables such as game tracking, high scores, and other audits
