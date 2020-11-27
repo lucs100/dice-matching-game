@@ -15,7 +15,7 @@ def askName():
     if os.path.exists(namePath):
         # import variables like their highscore
         pass
-    else:
+    elif name != "playerdata":
         while True:
             res = str(input("Creating new file under filename {}. Is this okay? y/n  ".format(name)))
             if res.lower() == 'y':
