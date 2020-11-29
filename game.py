@@ -8,6 +8,13 @@ def init():
     score = 0
     # take data from persistent.txt
 
+def updateScore():
+    score = 0
+    for i in scoreArray:
+        if i.isnumeric():
+            score += i
+    return score
+
 def askName():
     global name
     name = str(input("Enter your name. If you have played before, enter the same name as last time.  "))
@@ -135,6 +142,9 @@ def checkGameOver():
         #game over
         pass
 
+def procScore(cat):
+    scoreArray[cat] = turnScore(dice, cat)
+
 def turnLoop():
     global dice, locks
     rollCount = 1
@@ -177,6 +187,9 @@ def turnLoop():
                 printstatus()
             elif c == '':
                 break
+            elif c == 's':
+                procScore(pageSelector())
+                return True
         rollCount += 1
 
 print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
