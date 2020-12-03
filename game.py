@@ -23,6 +23,7 @@ def updateScore():
     return score
 
 def askName():
+    # not yet implemented
     global name
     name = str(input("Enter your name. If you have played before, enter the same name as last time.  "))
     namePath = "gamedata/players/" + name + ".txt"
@@ -34,9 +35,7 @@ def askName():
             res = str(input("Creating new file under filename {}. Is this okay? y/n  ".format(name)))
             if res.lower() == 'y':
                 createFile = open("gamedata/players/{}.txt".format(name), 'x')
-                createFile.write(name)
-                createFile.write('\n')
-                createFile.write('0')
+                createFile.write("{}\n0")
                 createFile.close()
                 break
             if res.lower() == 'n':
@@ -60,12 +59,14 @@ scoreCategories = ["Ones", "Twos", "Threes", "Fours", "Fives", "Sixes", "Full Ho
 scoreArray = ["", "", "", "", "", "", "", "", "", "", "", "", ""]
 
 def pageSelector():
+    global dice
     ws()
     printPointer = 0
     printArray = [(0, 6), (6, 10), (10, 13)]
     while True:
         printPointer = printPointer % 3
         ws()
+        print("Current score: {}".format(updateScore()))
         print("Page {}/3 \t Press enter to go to the next page, or a [number] to score your turn.".format(printPointer+1))
         i = 0
         for i in range(printArray[printPointer][0], printArray[printPointer][1]):
@@ -124,6 +125,7 @@ def turnLoop():
         dice = rollDice()
 
         def printstatus():
+            ws()
             print("Score: {}\n".format(updateScore()))
             print("Turn {}.".format(14 - scoreArray.count("")))
             print("{} roll.\n".format(ordn))
@@ -192,20 +194,21 @@ def checkScore(cat):
     elif cat == 6:
         return dice.count(6) * 6
     elif cat == 7:
-        dice.sort()
-        if (dice[0] == dice[1] == dice[2] and dice[3] == dice[4]) or (dice[0] == dice[1] and dice[2] == dice[3] == dice[4]):
+        diceCopy1 = list(dict.fromkeys(dice))
+        diceCopy1.sort()
+        if (diceCopy1[0] == diceCopy1[1] == diceCopy1[2] and diceCopy1[3] == diceCopy1[4]) or (diceCopy1[0] == diceCopy1[1] and diceCopy1[2] == diceCopy1[3] == diceCopy1[4]):
             return 25
         return 0
     elif cat == 8:
-        dice.sort()
-        dice = list(dict.fromkeys(dice))
-        if (dice[0] + 3 == dice[1] + 2 == dice[2] + 1 == dice[3]) or dice[1] + 3 == dice[2] + 2 == dice[3] + 1 == dice[4]:
+        diceCopy2 = list(dict.fromkeys(dice))
+        diceCopy2.sort()
+        if (diceCopy2[0] + 3 == diceCopy2[1] + 2 == diceCopy2[2] + 1 == diceCopy2[3]) or diceCopy2[1] + 3 == diceCopy2[2] + 2 == diceCopy2[3] + 1 == diceCopy2[4]:
             return 30
         return 0
     elif cat == 9:
-        dice.sort()
-        dice = list(dict.fromkeys(dice))
-        if (dice[0] + 4 == dice[1] + 3 == dice[2] + 2 == dice[3] + 1 == dice[4]):
+        diceCopy3 = list(dict.fromkeys(dice))
+        diceCopy3.sort()
+        if (diceCopy3[0] + 4 == diceCopy3[1] + 3 == diceCopy3[2] + 2 == diceCopy3[3] + 1 == diceCopy3[4]):
             return 40
         return 0
     elif cat == 10:
