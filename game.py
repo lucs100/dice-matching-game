@@ -140,24 +140,20 @@ def turnLoop():
             c = input()
             if c == 'y':
                 locks[0] = not(bool(locks[0]))
-                printstatus()
             elif c == 'u':
                 locks[1] = not(bool(locks[1]))
-                printstatus()
             elif c == 'i':
                 locks[2] = not(bool(locks[2]))
-                printstatus()
             elif c == 'o':
                 locks[3] = not(bool(locks[3]))
-                printstatus()
             elif c == 'p':
                 locks[4] = not(bool(locks[4]))
-                printstatus()
             elif c == '':
                 break
             elif c == 's':
                 pageSelector()
                 return True
+            printstatus()
         if rollCount == 3:
             ws()
             print("Out of rolls.")
@@ -180,6 +176,7 @@ def rollDice():
 
 def checkScore(cat):
     global dice
+    dice = sorted(dice)
     cat -= 1
     if cat == 1:
         return dice.count(1) * 1
@@ -194,22 +191,21 @@ def checkScore(cat):
     elif cat == 6:
         return dice.count(6) * 6
     elif cat == 7:
-        diceCopy1 = list(dict.fromkeys(dice))
-        diceCopy1.sort()
+        diceCopy1 = dice
         if (diceCopy1[0] == diceCopy1[1] == diceCopy1[2] and diceCopy1[3] == diceCopy1[4]) or (diceCopy1[0] == diceCopy1[1] and diceCopy1[2] == diceCopy1[3] == diceCopy1[4]):
             return 25
         return 0
     elif cat == 8:
         diceCopy2 = list(dict.fromkeys(dice))
-        diceCopy2.sort()
-        if (diceCopy2[0] + 3 == diceCopy2[1] + 2 == diceCopy2[2] + 1 == diceCopy2[3]) or diceCopy2[1] + 3 == diceCopy2[2] + 2 == diceCopy2[3] + 1 == diceCopy2[4]:
-            return 30
+        if len(diceCopy2) >= 4:
+            if (diceCopy2[0] + 3 == diceCopy2[1] + 2 == diceCopy2[2] + 1 == diceCopy2[3]) or diceCopy2[1] + 3 == diceCopy2[2] + 2 == diceCopy2[3] + 1 == diceCopy2[4]:
+                return 30
         return 0
     elif cat == 9:
         diceCopy3 = list(dict.fromkeys(dice))
-        diceCopy3.sort()
-        if (diceCopy3[0] + 4 == diceCopy3[1] + 3 == diceCopy3[2] + 2 == diceCopy3[3] + 1 == diceCopy3[4]):
-            return 40
+        if len(diceCopy3) >= 5:
+            if (diceCopy3[0] + 4 == diceCopy3[1] + 3 == diceCopy3[2] + 2 == diceCopy3[3] + 1 == diceCopy3[4]):
+                return 40
         return 0
     elif cat == 10:
         return sum(dice)
