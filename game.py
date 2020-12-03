@@ -1,5 +1,12 @@
-# ur code loser
 import os.path, random
+
+rollCount = 1
+dice = []
+locks = [False, False, False, False, False]
+
+def ws(count=20):
+    for i in range(count):
+        print("\n")
 
 def init():
     global highscore
@@ -11,7 +18,7 @@ def init():
 def updateScore():
     score = 0
     for i in scoreArray:
-        if i.isnumeric():
+        if str(i).isnumeric():
             score += i
     return score
 
@@ -49,7 +56,117 @@ dice = []
 locks = [False, False, False, False, False]
 lockKeyBinds = ['Y', 'U', 'I', 'O', 'P']
 
-def rollDice(rollCount):
+scoreCategories = ["Ones", "Twos", "Threes", "Fours", "Fives", "Sixes", "Full House", "Small Straight", "Large Straight", "Free Space", "Three of a Kind", "Four of a Kind", "Five of a Kind"]
+scoreArray = ["", "", "", "", "", "", "", "", "", "", "", "", ""]
+
+def pageSelector():
+    ws()
+    printPointer = 0
+    printArray = [(0, 6), (6, 10), (10, 13)]
+    while True:
+        printPointer = printPointer % 3
+        ws()
+        print("Page {}/3 \t Press enter to go to the next page, or a [number] to score your turn.".format(printPointer+1))
+        i = 0
+        for i in range(printArray[printPointer][0], printArray[printPointer][1]):
+            pageScorerIdx = 1 + i - printArray[printPointer][0]
+            if scoreArray[i].isnumeric():
+                scoreStatus = ("Scored {} points".format(scoreArray[i]))
+            else:
+                scoreStatus = ("Open, worth {} points".format(checkScore(i+2)))
+            print("[{}] - {}:\t\t{}".format(pageScorerIdx, scoreCategories[i], scoreStatus))
+        print("Current dice: \n {} {} {} {} {}".format(*dice))
+        inputChr = ''
+        inputChr = input()
+        if inputChr.lower() == '':
+            printPointer += 1
+        if inputChr.lower() == 'd':
+            turnLoop()
+            return True
+        if inputChr.isnumeric():
+            inputIdx = int(inputChr) + 1
+            inputIdx += printArray[printPointer][0]
+            procScore(inputIdx)
+            return True
+        else:
+            print("")
+
+def checkGameOver():
+    if scoreArray.count("") == 0:
+        #game over
+        pass
+
+def procScore(cat):
+    scoreArray[cat] = checkScore(cat)
+    ws()
+    print("Scored {} points.".format(scoreArray[cat]))
+    prepTurnLoop()
+    return True
+
+def prepTurnLoop():
+    global rollCount, dice, locks
+    rollCount = 1
+    dice = []
+    locks = [False, False, False, False, False]
+    turnLoop()
+    return True
+
+def turnLoop():
+    global rollCount, dice, locks
+    while True:
+        if rollCount == 1:
+            ordn = "First"
+        elif rollCount == 2:
+            ordn = "Second"
+        elif rollCount == 3:
+            ordn = "Last"
+
+        dice = rollDice()
+
+        def printstatus():
+            print("Score: {}\n".format(updateScore()))
+            print("Turn {}.".format(14 - scoreArray.count("")))
+            print("{} roll.\n".format(ordn))
+            print(*dice)
+            print(*formatLocks())
+            print(*lockKeyBinds)
+
+        printstatus()
+
+        while True:
+            c = ''
+            c = input()
+            if c == 'y':
+                locks[0] = not(bool(locks[0]))
+                printstatus()
+            elif c == 'u':
+                locks[1] = not(bool(locks[1]))
+                printstatus()
+            elif c == 'i':
+                locks[2] = not(bool(locks[2]))
+                printstatus()
+            elif c == 'o':
+                locks[3] = not(bool(locks[3]))
+                printstatus()
+            elif c == 'p':
+                locks[4] = not(bool(locks[4]))
+                printstatus()
+            elif c == '':
+                break
+            elif c == 's':
+                pageSelector()
+                return True
+        if rollCount == 3:
+            ws()
+            print("Out of rolls.")
+            print("Dice: {} {} {} {} {}\n".format(*dice))
+            input("Press enter to go to the scoring page.")
+            pageSelector()
+            return True
+        rollCount += 1
+
+def rollDice():
+    global rollCount
     if rollCount == 1:
         for i in range(0, 5):
             dice.append(random.randrange(1, 7))
@@ -57,10 +174,11 @@ def rollDice(rollCount):
         for i in range(0, 5):
             if locks[i] == False:
                 dice[i] = random.randrange(1, 7)
-    return(dice)
+    return dice
 
-def turnScore(dice, cat):
-    cat = cat - 1
+def checkScore(cat):
+    global dice
+    cat -= 1
     if cat == 1:
         return dice.count(1) * 1
     elif cat == 2:
@@ -107,94 +225,9 @@ def turnScore(dice, cat):
             if dice.count(i) >= 5:
                 return (sum(dice) + 50)
         return 0
-    #should be able to return theoretical score of a turn
 
-scoreCategories = ["Ones", "Twos", "Threes", "Fours", "Fives", "Sixes", "Full House", "Small Straight", "Large Straight", "Free Space", "Three of a Kind", "Four of a Kind", "Five of a Kind"]
-scoreArray = ["", "", "", "", "", "", "", "", "", "", "", "", ""]
-# scoreStatus = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #could become codes for what to display, subarrays of the scored dice, strs, etc.
-
-def pageSelector():
-    printPointer = 0
-    printArray = [(0, 6), (7, 10), (10, 13)]
-    while True:
-        printPointer = printPointer % 3
-        print("Page {}/3 \t Type \"n\" to go to next page, a [number] to score your turn, or \"r\" to enter dice mode.".format(printPointer+1))
-        i = 0
-        for i in range(printArray[printPointer][0], printArray[printPointer][1]):
-            pageScorerIdx = 1 + i - printArray[printPointer][0]
-            scoreStatus = scoreArray[i] or "Open"
-            print("[{}] - {}:\t\t{}".format(pageScorerIdx, scoreCategories[i], scoreStatus))
-        print("Current dice: \n {} {} {} {} {}".format(*dice))
-        inputChr = ""
-        inputChr = input()
-        if inputChr.lower() == 'n':
-            printPointer += 1
-        if inputChr.lower() == 'r':
-            # enter dice mode
-            pass
-        if inputChr.isnumeric():
-            inputIdx = int(inputChr) - 1
-            inputIdx += printArray[printPointer][0]
-            return inputIdx
-
-def checkGameOver():
-    if scoreArray.count("") == 0:
-        #game over
-        pass
-
-def procScore(cat):
-    scoreArray[cat] = turnScore(dice, cat)
-
-def turnLoop():
-    global dice, locks
-    rollCount = 1
-    dice = []
-    locks = [False, False, False, False, False]
-    if rollCount == 1:
-        ordn = "First"
-    elif rollCount == 2:
-        ordn = "Second"
-    elif rollCount == 3:
-        ordn = "Last"
-
-    while True:
-        dice = rollDice(rollCount)
-        def printstatus():
-            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-            print("Turn {}.".format(14 - scoreArray.count("")))
-            print("{} roll.".format(ordn))
-            print(*dice)
-            print(*formatLocks())
-            print(*lockKeyBinds)
-        printstatus()
-        while True:
-            c = ''
-            c = input()
-            if c == 'y':
-                locks[0] = not(bool(locks[0]))
-                printstatus()
-            elif c == 'u':
-                locks[1] = not(bool(locks[1]))
-                printstatus()
-            elif c == 'i':
-                locks[2] = not(bool(locks[2]))
-                printstatus()
-            elif c == 'o':
-                locks[3] = not(bool(locks[3]))
-                printstatus()
-            elif c == 'p':
-                locks[4] = not(bool(locks[4]))
-                printstatus()
-            elif c == '':
-                break
-            elif c == 's':
-                procScore(pageSelector())
-                return True
-        rollCount += 1
-
-print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-turnLoop()
-
+ws()
+prepTurnLoop()
 
 # askName()
 # dont bother calling that yet
