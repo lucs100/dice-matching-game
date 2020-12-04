@@ -1,5 +1,7 @@
 import os.path, random
 
+highscore = 0
+score = 0
 rollCount = 1
 dice = []
 locks = [False, False, False, False, False]
@@ -77,7 +79,7 @@ def pageSelector():
             if isinstance(scoreArray[i], int):
                 scoreStatus = ("Scored {} points".format(scoreArray[i]))
             else:
-                scoreStatus = ("Open, worth {} points".format(checkScore(i+1)))
+                scoreStatus = ("Open, worth {} points".format(checkScore(i)))
             print("[{}] - {}:\t\t{}".format(pageScorerIdx, scoreCategories[i], scoreStatus))
         print("Current dice: \n {} {} {} {} {}".format(*dice))
         inputChr = ''
@@ -104,6 +106,10 @@ def procScore(cat):
         scoreArray[cat] = checkScore(cat)
         ws()
         print("Scored {} points.".format(scoreArray[cat]))
+        if scoreArray.count("") == 0:
+            input("Press enter to see results.")
+            gameOver()
+            return True
         input("Press enter to begin next turn.")
         prepTurnLoop()
         return True
@@ -117,17 +123,8 @@ def prepTurnLoop():
     return True
 
 def turnLoop():
-    if scoreArray.count("") == 0:
-        gameOver()
-        return True
     global rollCount, dice, locks
     while True:
-        if rollCount == 1:
-            ordn = "First"
-        elif rollCount == 2:
-            ordn = "Second"
-        elif rollCount == 3:
-            ordn = "Last"
 
         dice = rollDice()
 
@@ -135,7 +132,7 @@ def turnLoop():
             ws()
             print("Score: {}\n".format(updateScore()))
             print("Turn {}.".format(14 - scoreArray.count("")))
-            print("{} roll.\n".format(ordn))
+            print("Rolls remaining: {}\n".format(3 - rollCount))
             print(*dice)
             print(*formatLocks())
             print(*lockKeyBinds)
@@ -143,6 +140,14 @@ def turnLoop():
         printstatus()
 
         while True:
+            if rollCount == 3:
+                ws()
+                dice = sorted(dice)
+                print("Out of rolls.")
+                print("Dice: {} {} {} {} {}\n".format(*dice))
+                input("Press enter to go to the scoring page.")
+                pageSelector()
+                return True
             c = ''
             c = input().upper()
             if c == lockKeyBinds[0]:
@@ -159,16 +164,8 @@ def turnLoop():
                 break
             elif c == 'S':
                 pageSelector()
-                return True
+                break
             printstatus()
-        if rollCount == 3:
-            ws()
-            dice = sorted(dice)
-            print("Out of rolls.")
-            print("Dice: {} {} {} {} {}\n".format(*dice))
-            input("Press enter to go to the scoring page.")
-            pageSelector()
-            return True
         rollCount += 1
 
 def rollDice():
@@ -232,12 +229,28 @@ def checkScore(cat):
                 return (sum(dice) + 50)
         return 0
 
+def getResultMessage(score):
+    if score > 400:
+        return "What an amazing score!"
+    elif score > 300:
+        return "Awesome game!"
+    elif score > 200:
+        return "Great job!"
+    elif score > 100:
+        return "Good job!"
+    elif score < 10:
+        return "That's a really low score! Impressive!"
+    else:
+        return "Better luck next time!"
+
 def gameOver():
     global score, highscore
     ws()
     print("Game over! All categories have been scored.")
-    print("Your final score was {}.".format(score))
-    print("Your high score: {}.".format(highscore))
+    print("Your final score was {}.".format(updateScore()))
+    print(getResultMessage(score))
+    exit(score)
+    # print("Your high score: {}.".format(personalHigh))
     # if score > personalHigh:
     #     new personal hs
     # else:
