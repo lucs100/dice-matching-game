@@ -21,7 +21,7 @@ def init():
 def updateScore():
     score = 0
     for i in scoreArray:
-        if str(i).isnumeric():
+        if isinstance(i, int):
             score += i
     return score
 
@@ -77,7 +77,7 @@ def pageSelector():
             if isinstance(scoreArray[i], int):
                 scoreStatus = ("Scored {} points".format(scoreArray[i]))
             else:
-                scoreStatus = ("Open, worth {} points".format(checkScore(i+2)))
+                scoreStatus = ("Open, worth {} points".format(checkScore(i+1)))
             print("[{}] - {}:\t\t{}".format(pageScorerIdx, scoreCategories[i], scoreStatus))
         print("Current dice: \n {} {} {} {} {}".format(*dice))
         inputChr = ''
@@ -88,19 +88,25 @@ def pageSelector():
             turnLoop()
             return True
         if inputChr.isnumeric():
-            inputIdx = int(inputChr) + 1
-            inputIdx += printArray[printPointer][0]
-            procScore(inputIdx)
-            return True
+            inputIdx = printArray[printPointer][0] + int(inputChr) - 1
+            if procScore(inputIdx):
+                return True
         else:
             print("")
 
 def procScore(cat):
-    scoreArray[cat] = checkScore(cat)
-    ws()
-    print("Scored {} points.".format(scoreArray[cat]))
-    prepTurnLoop()
-    return True
+    if scoreArray[cat] != '':
+        ws()
+        print("Category already scored. Press enter to continue.")
+        input()
+        return False
+    else:
+        scoreArray[cat] = checkScore(cat)
+        ws()
+        print("Scored {} points.".format(scoreArray[cat]))
+        input("Press enter to begin next turn.")
+        prepTurnLoop()
+        return True
 
 def prepTurnLoop():
     global rollCount, dice, locks
@@ -138,25 +144,26 @@ def turnLoop():
 
         while True:
             c = ''
-            c = input()
-            if c == 'y':
+            c = input().upper()
+            if c == lockKeyBinds[0]:
                 locks[0] = not(bool(locks[0]))
-            elif c == 'u':
+            elif c == lockKeyBinds[1]:
                 locks[1] = not(bool(locks[1]))
-            elif c == 'i':
+            elif c == lockKeyBinds[2]:
                 locks[2] = not(bool(locks[2]))
-            elif c == 'o':
+            elif c == lockKeyBinds[3]:
                 locks[3] = not(bool(locks[3]))
-            elif c == 'p':
+            elif c == lockKeyBinds[4]:
                 locks[4] = not(bool(locks[4]))
             elif c == '':
                 break
-            elif c == 's':
+            elif c == 'S':
                 pageSelector()
                 return True
             printstatus()
         if rollCount == 3:
             ws()
+            dice = sorted(dice)
             print("Out of rolls.")
             print("Dice: {} {} {} {} {}\n".format(*dice))
             input("Press enter to go to the scoring page.")
@@ -177,8 +184,7 @@ def rollDice():
 
 def checkScore(cat):
     global dice
-    dice = sorted(dice)
-    cat -= 1
+    cat += 1 # not good practice but keeps cats 1~6 equal to target number
     if cat == 1:
         return dice.count(1) * 1
     elif cat == 2:
@@ -211,17 +217,17 @@ def checkScore(cat):
     elif cat == 10:
         return sum(dice)
     elif cat == 11:
-        for i in range(1, 6):
+        for i in range(1, 7):
             if dice.count(i) >= 3:
                 return sum(dice)
         return 0
     elif cat == 12:
-        for i in range(1, 6):
+        for i in range(1, 7):
             if dice.count(i) >= 4:
                 return (sum(dice) + 10)
         return 0
     elif cat == 13:
-        for i in range(1, 6):
+        for i in range(1, 7):
             if dice.count(i) >= 5:
                 return (sum(dice) + 50)
         return 0
