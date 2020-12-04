@@ -9,11 +9,14 @@ def ws(count=20):
         print("\n")
 
 def init():
-    global highscore
-    highscore = 0 
+    global highscore, score, rollCount, dice, locks
+    highscore = 0
+    # take from persistent.txt
     global score
     score = 0
-    # take data from persistent.txt
+    rollCount = 1
+    dice = []
+    locks = [False, False, False, False, False]
 
 def updateScore():
     score = 0
@@ -71,7 +74,7 @@ def pageSelector():
         i = 0
         for i in range(printArray[printPointer][0], printArray[printPointer][1]):
             pageScorerIdx = 1 + i - printArray[printPointer][0]
-            if scoreArray[i].isnumeric():
+            if isinstance(scoreArray[i], int):
                 scoreStatus = ("Scored {} points".format(scoreArray[i]))
             else:
                 scoreStatus = ("Open, worth {} points".format(checkScore(i+2)))
@@ -92,11 +95,6 @@ def pageSelector():
         else:
             print("")
 
-def checkGameOver():
-    if scoreArray.count("") == 0:
-        #game over
-        pass
-
 def procScore(cat):
     scoreArray[cat] = checkScore(cat)
     ws()
@@ -113,6 +111,9 @@ def prepTurnLoop():
     return True
 
 def turnLoop():
+    if scoreArray.count("") == 0:
+        gameOver()
+        return True
     global rollCount, dice, locks
     while True:
         if rollCount == 1:
@@ -224,6 +225,23 @@ def checkScore(cat):
             if dice.count(i) >= 5:
                 return (sum(dice) + 50)
         return 0
+
+def gameOver():
+    global score, highscore
+    ws()
+    print("Game over! All categories have been scored.")
+    print("Your final score was {}.".format(score))
+    print("Your high score: {}.".format(highscore))
+    # if score > personalHigh:
+    #     new personal hs
+    # else:
+    #     you were x points off your hs
+    # repeat for global hs
+
+def newGame():
+    # askName()
+    init()
+    prepTurnLoop()
 
 ws()
 prepTurnLoop()
