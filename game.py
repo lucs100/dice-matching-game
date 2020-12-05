@@ -1,6 +1,8 @@
-import os.path, random
+import os.path, random, json
 
+name = ""
 highscore = 0
+personalHigh = 0
 score = 0
 rollCount = 1
 dice = []
@@ -9,16 +11,19 @@ locks = [False, False, False, False, False]
 def ws(count=20):
     for i in range(count):
         print("\n")
+    return True
 
 def init():
-    global highscore, score, rollCount, dice, locks
-    highscore = 0
-    # take from persistent.txt
-    global score
+    global highscore, personalHigh, score, rollCount, dice, locks
+    highscoreFile = open("gamedata\highscore.txt", "r")
+    highscore = int(highscoreFile.read())
+    # take from highscore.txt
+    # personalHigh = getPersonalHigh
     score = 0
     rollCount = 1
     dice = []
     locks = [False, False, False, False, False]
+    return True
 
 def updateScore():
     score = 0
@@ -26,6 +31,13 @@ def updateScore():
         if isinstance(i, int):
             score += i
     return score
+
+def primGameIntro():
+    global name
+    # need a full version of this once name input is ready!
+    print("Dice Matching Game")
+    print("High Score: {}".format(highscore))
+    name = input("Enter your name:    ")
 
 def askName():
     # not yet implemented
@@ -229,26 +241,54 @@ def checkScore(cat):
                 return (sum(dice) + 50)
         return 0
 
-def getResultMessage(score):
-    if score > 400:
-        return "What an amazing score!"
-    elif score > 300:
-        return "Awesome game!"
-    elif score > 200:
-        return "Great job!"
-    elif score > 100:
-        return "Good job!"
-    elif score < 10:
-        return "That's a really low score! Impressive!"
-    else:
-        return "Better luck next time!"
+def getResultMessage(val, mode):
+    if mode == "score":
+        if val > 400:
+            return "What an amazing score!"
+        elif val > 300:
+            return "Awesome game!"
+        elif val > 200:
+            return "Great job!"
+        elif val > 100:
+            return "Good job!"
+        elif val < 10:
+            return "That's a really low score! Impressive!"
+        else:
+            return ""
+    elif mode == "hs":
+        if val > 100:
+            return "You crushed the high score! Congratulations!"
+        elif val > 50:
+            return "You beat the high score by quite a bit, wow!"
+        elif val > 10:
+            return "You beat the high score!"
+        elif val > 0:
+            return "You just barely beat the high score!"
+        elif val > -100:
+            return "You were pretty far off the high score... Better luck next time!"
+        elif val > -50:
+            return "You were close to the high score! Try again!"
+        elif val > -10:
+            return "You almost beat the high score! One more shot!"
+        else:
+            return ""
+    # elif mode == "phs":
+    #   personal highscore mode
 
 def gameOver():
     global score, highscore
     ws()
-    print("Game over! All categories have been scored.")
-    print("Your final score was {}.".format(updateScore()))
-    print(getResultMessage(score))
+    print("Game over! All categories have been scored.\n")
+    print("Your final score was {}.".format(score))
+    print(getResultMessage(score, "score"))
+    ws(1)
+    print("The high score is {}.".format(highscore))
+    print(getResultMessage((score - highscore), "hs"))
+    if highscore < score:
+        highscoreFile = open("gamedata/highscore.txt", "w")
+        highscoreFile.write(str(score))
+    print("Thanks for playing!")
+    ws(1)
     exit(score)
     # print("Your high score: {}.".format(personalHigh))
     # if score > personalHigh:
@@ -258,12 +298,13 @@ def gameOver():
     # repeat for global hs
 
 def newGame():
+    ws()
     # askName()
     init()
+    primGameIntro()
     prepTurnLoop()
-
-ws()
-prepTurnLoop()
+ 
+newGame()
 
 # askName()
 # dont bother calling that yet
