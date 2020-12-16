@@ -1,4 +1,4 @@
-import os.path, random, json
+import os.path, random, json, highscoresave
 
 name = ""
 highscore = 0
@@ -15,10 +15,8 @@ def ws(count=20):
 
 def init():
     global highscore, personalHigh, score, rollCount, dice, locks
-    highscoreFile = open("gamedata\highscore.txt", "r")
-    highscore = int(highscoreFile.read())
-    # take from highscore.txt
-    # personalHigh = getPersonalHigh
+    highscore = highscoresave.hs
+    # personalHigh = getPersonalHigh?
     score = 0
     rollCount = 1
     dice = []
@@ -41,6 +39,8 @@ def primGameIntro():
 
 def askName():
     # not yet implemented
+    # THIS SHOULD ALL BE DONE AS JSON!!! dont bother with writing files theyre way too complicated
+    # if thats possible idk, ill look into it
     global name
     name = str(input("Enter your name. If you have played before, enter the same name as last time.  "))
     namePath = "gamedata/players/" + name + ".txt"
@@ -285,8 +285,7 @@ def gameOver():
     print("The high score is {}.".format(highscore))
     print(getResultMessage((score - highscore), "hs"))
     if highscore < score:
-        highscoreFile = open("gamedata/highscore.txt", "w")
-        highscoreFile.write(str(score))
+        highscoresave.hs = score
     print("Thanks for playing!")
     ws(1)
     exit(score)
